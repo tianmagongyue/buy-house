@@ -1,0 +1,11 @@
+[
+  {
+    "year": 2021,
+    "name": "示例楼盘A",
+    "priceCnyPerSqm": 85000,
+    "priceTotalCny": null,
+    "priceSourceTitle": "示例来源",
+    "priceSourceUrl": "https://www.fangdi.com.cn/",
+    "priceUpdatedAt": "2026-03-16T00:00:00Z"
+  }
+]

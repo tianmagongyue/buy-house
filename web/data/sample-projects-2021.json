@@ -1,0 +1,20 @@
+[
+  {
+    "name": "示例楼盘A",
+    "district": "浦东新区",
+    "address": "上海市浦东新区世纪大道1号",
+    "triggeredAt": "2021-03-01",
+    "triggeredAtPrecision": "day",
+    "sourceTitle": "示例来源",
+    "sourceUrl": "https://www.fangdi.com.cn/"
+  },
+  {
+    "name": "示例楼盘B",
+    "district": "徐汇区",
+    "address": "上海市徐汇区漕溪北路1号",
+    "triggeredAt": "2021-05",
+    "triggeredAtPrecision": "month",
+    "sourceTitle": "示例来源",
+    "sourceUrl": "https://www.fangdi.com.cn/"
+  }
+]
