@@ -29,8 +29,9 @@ function formatDate(d: string | null) {
 
 export function Home() {
   const amapKey = process.env.NEXT_PUBLIC_AMAP_KEY || "";
+  const amapSecurityCode = process.env.NEXT_PUBLIC_AMAP_SECURITY_CODE || "";
 
-  const [view, setView] = useState<"map" | "list">("map");
+  const [view, setView] = useState<"map" | "list">(amapKey ? "map" : "list");
   const [meta, setMeta] = useState<MetaResponse | null>(null);
   const [items, setItems] = useState<MapProject[]>([]);
   const [total, setTotal] = useState(0);
@@ -51,6 +52,28 @@ export function Home() {
     () => items.find((i) => i.id === selectedId) ?? null,
     [items, selectedId]
   );
+  const indexById = useMemo(() => {
+    if (selectedId) return undefined;
+    const out: Record<string, number> = {};
+    let idx = 1;
+    for (const p of items) {
+      const lng = (p as any).lng;
+      const lat = (p as any).lat;
+      const hasCoords =
+        lng !== null &&
+        lat !== null &&
+        lng !== undefined &&
+        lat !== undefined &&
+        Number.isFinite(Number(lng)) &&
+        Number.isFinite(Number(lat)) &&
+        !(Number(lng) === 0 && Number(lat) === 0);
+      if (hasCoords) {
+        out[p.id] = idx;
+        idx += 1;
+      }
+    }
+    return out;
+  }, [items, selectedId]);
 
   useEffect(() => {
     fetch("/api/meta")
@@ -215,6 +238,8 @@ export function Home() {
             {amapKey ? (
               <AmapView
                 amapKey={amapKey}
+                securityCode={amapSecurityCode || undefined}
+                indexById={indexById}
                 items={items}
                 selectedId={selectedId}
                 onSelect={setSelectedId}
@@ -282,7 +307,60 @@ export function Home() {
                 ) : null}
               </div>
             ) : (
-              <div className="text-sm text-gray-600">点击地图点位或列表条目查看详情</div>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="text-sm font-medium">全部条目</div>
+                  <button
+                    className="rounded-md bg-gray-100 px-2 py-1 text-xs"
+                    onClick={() => setView("list")}
+                  >
+                    打开列表视图
+                  </button>
+                </div>
+                <div className="max-h-[56vh] overflow-auto">
+                  <div className="divide-y">
+                    {items.map((p) => {
+                      const idx = indexById?.[p.id];
+                      const lng = (p as any).lng;
+                      const lat = (p as any).lat;
+                      const hasCoords =
+                        lng !== null &&
+                        lat !== null &&
+                        lng !== undefined &&
+                        lat !== undefined &&
+                        Number.isFinite(Number(lng)) &&
+                        Number.isFinite(Number(lat)) &&
+                        !(Number(lng) === 0 && Number(lat) === 0);
+                      return (
+                        <button
+                          key={p.id}
+                          className="flex w-full items-start gap-3 px-2 py-2 text-left hover:bg-gray-50"
+                          onClick={() => setSelectedId(p.id)}
+                        >
+                          <div
+                            className={`mt-0.5 flex h-6 w-6 items-center justify-center rounded-full text-xs font-semibold ${
+                              hasCoords ? "bg-gray-900 text-white" : "bg-gray-200 text-gray-700"
+                            }`}
+                            title={hasCoords ? "已定位" : "无坐标"}
+                          >
+                            {hasCoords ? idx : "—"}
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <div className="truncate text-sm font-medium">{p.name}</div>
+                            <div className="truncate text-xs text-gray-600">
+                              {p.district} · {formatPrice(p.price_cny_per_sqm)}
+                            </div>
+                            <div className="truncate text-xs text-gray-500">{p.address}</div>
+                          </div>
+                        </button>
+                      );
+                    })}
+                    {items.length === 0 && !loading ? (
+                      <div className="px-2 py-6 text-center text-sm text-gray-600">暂无数据</div>
+                    ) : null}
+                  </div>
+                </div>
+              </div>
             )}
           </div>
         </div>

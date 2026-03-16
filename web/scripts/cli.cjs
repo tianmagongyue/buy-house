@@ -1,4 +1,6 @@
 const { neon } = require("@neondatabase/serverless");
+const path = require("node:path");
+require("dotenv").config({ path: path.join(process.cwd(), ".env.local") });
 
 function getArg(name) {
   const idx = process.argv.indexOf(`--${name}`);
@@ -134,4 +136,3 @@ main().catch((err) => {
   console.error(err);
   process.exit(1);
 });
-

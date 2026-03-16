@@ -1,6 +1,7 @@
 const fs = require("node:fs");
 const path = require("node:path");
 const { neon } = require("@neondatabase/serverless");
+require("dotenv").config({ path: path.join(process.cwd(), ".env.local") });
 
 async function main() {
   const conn = process.env.POSTGRES_URL;
@@ -18,7 +19,13 @@ async function main() {
   for (const file of files) {
     const fullPath = path.join(migrationsDir, file);
     const text = fs.readFileSync(fullPath, "utf8");
-    await sql.unsafe(text);
+    const statements = text
+      .split(";")
+      .map((s) => s.trim())
+      .filter(Boolean);
+    for (const stmt of statements) {
+      await sql.query(stmt);
+    }
   }
 }
 
@@ -26,4 +33,3 @@ main().catch((err) => {
   console.error(err);
   process.exit(1);
 });
-

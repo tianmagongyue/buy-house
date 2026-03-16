@@ -2,6 +2,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 const { neon } = require("@neondatabase/serverless");
 const { z } = require("zod");
+require("dotenv").config({ path: path.join(process.cwd(), ".env.local") });
 
 function getArg(name) {
   const idx = process.argv.indexOf(`--${name}`);
@@ -138,4 +139,3 @@ main().catch((err) => {
   console.error(err);
   process.exit(1);
 });
-
