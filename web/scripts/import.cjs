@@ -39,7 +39,12 @@ async function geocodeShanghaiAddress({ address, key }) {
   url.searchParams.set("city", "上海");
   url.searchParams.set("output", "JSON");
 
-  const res = await fetch(url, { method: "GET" });
+  let res;
+  try {
+    res = await fetch(url, { method: "GET" });
+  } catch {
+    return null;
+  }
   if (!res.ok) return null;
   const json = await res.json();
   if (json.status !== "1") return null;

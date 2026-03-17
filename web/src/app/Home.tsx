@@ -8,6 +8,8 @@ type MetaResponse = {
   projectsUpdatedAt: string | null;
   pricesUpdatedAt: string | null;
   districts: { district: string; cnt: number }[];
+  years: number[];
+  year: number;
 };
 
 type ProjectsResponse = {
@@ -38,7 +40,7 @@ export function Home() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const [year] = useState(2021);
+  const [year, setYear] = useState(2021);
   const [district, setDistrict] = useState<string>("");
   const [q, setQ] = useState("");
   const [minPrice, setMinPrice] = useState<string>("");
@@ -53,7 +55,6 @@ export function Home() {
     [items, selectedId]
   );
   const indexById = useMemo(() => {
-    if (selectedId) return undefined;
     const out: Record<string, number> = {};
     let idx = 1;
     for (const p of items) {
@@ -76,11 +77,16 @@ export function Home() {
   }, [items, selectedId]);
 
   useEffect(() => {
-    fetch("/api/meta")
+    fetch(`/api/meta?year=${encodeURIComponent(String(year))}`)
       .then((r) => r.json())
-      .then((d) => setMeta(d))
+      .then((d) => {
+        setMeta(d);
+        if (typeof d?.year === "number" && Number.isFinite(d.year) && d.year !== year) {
+          setYear(d.year);
+        }
+      })
       .catch(() => {});
-  }, []);
+  }, [year]);
 
   const queryString = useMemo(() => {
     const u = new URLSearchParams();
@@ -120,7 +126,8 @@ export function Home() {
 
   useEffect(() => {
     setPage(1);
-  }, [district, q, minPrice, maxPrice, includeUnknownPrice]);
+    setSelectedId(null);
+  }, [year, district, q, minPrice, maxPrice, includeUnknownPrice]);
 
   const canLoadMore = items.length < total && !loading;
 
@@ -138,7 +145,7 @@ export function Home() {
       method: "POST",
       headers: { authorization: `Bearer ${token}` }
     });
-    await fetch("/api/meta")
+    await fetch(`/api/meta?year=${encodeURIComponent(String(year))}`)
       .then((r) => r.json())
       .then((d) => setMeta(d))
       .catch(() => {});
@@ -149,7 +156,7 @@ export function Home() {
     <div className="mx-auto max-w-6xl px-4 py-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div className="space-y-1">
-          <div className="text-xl font-semibold">上海 2021 触发限售楼盘</div>
+          <div className="text-xl font-semibold">上海 {year} 触发限售楼盘</div>
           <div className="text-sm text-gray-600">
             楼盘清单更新：{meta?.projectsUpdatedAt ? formatDate(meta.projectsUpdatedAt) : "—"}；挂牌价更新：
             {meta?.pricesUpdatedAt ? formatDate(meta.pricesUpdatedAt) : "—"}
@@ -176,6 +183,17 @@ export function Home() {
       </div>
 
       <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-6">
+        <select
+          className="rounded-md border px-3 py-2 text-sm sm:col-span-1"
+          value={year}
+          onChange={(e) => setYear(Number(e.target.value))}
+        >
+          {(meta?.years?.length ? meta.years : [2021, 2026]).map((y) => (
+            <option key={y} value={y}>
+              {y} 年
+            </option>
+          ))}
+        </select>
         <input
           className="rounded-md border px-3 py-2 text-sm sm:col-span-2"
           placeholder="搜索楼盘名称/地址"

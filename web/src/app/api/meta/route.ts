@@ -3,7 +3,10 @@ import { loadDemoDataset } from "@/lib/demoData";
 
 export const runtime = "nodejs";
 
-export async function GET() {
+export async function GET(req: Request) {
+  const url = new URL(req.url);
+  const yearStr = url.searchParams.get("year");
+  const year = yearStr ? Number(yearStr) : null;
   try {
     const sql = getSql();
     const meta = (await sql`
@@ -12,12 +15,21 @@ export async function GET() {
       where key in ('projects', 'prices')
     `) as { key: string; value: unknown; updated_at: string }[];
 
-    const totalRows = (await sql`select count(1)::int as cnt from projects`) as { cnt: number }[];
+    const years = (await sql`select distinct year from projects order by year asc`) as { year: number }[];
+    const yearsList = years.map((y) => y.year);
+    const effectiveYear =
+      typeof year === "number" && Number.isFinite(year) ? year : (yearsList[0] ?? 2021);
+    const totalRows = (await sql`
+      select count(1)::int as cnt
+      from projects
+      where year = ${effectiveYear}
+    `) as { cnt: number }[];
     const totalProjects = totalRows[0]?.cnt ?? 0;
 
     const districts = (await sql`
       select district, count(1)::int as cnt
       from projects
+      where year = ${effectiveYear}
       group by district
       order by cnt desc, district asc
     `) as { district: string; cnt: number }[];
@@ -29,7 +41,9 @@ export async function GET() {
       totalProjects,
       projectsUpdatedAt: projectsMeta?.updated_at ?? null,
       pricesUpdatedAt: pricesMeta?.updated_at ?? null,
-      districts
+      districts,
+      years: yearsList,
+      year: effectiveYear
     });
   } catch {
     const demo = await loadDemoDataset({ year: 2021 });
@@ -44,7 +58,9 @@ export async function GET() {
       totalProjects: demo.projects.length,
       projectsUpdatedAt: demo.projectsUpdatedAt,
       pricesUpdatedAt: demo.pricesUpdatedAt,
-      districts
+      districts,
+      years: [2021],
+      year: 2021
     });
   }
 }
