@@ -40,7 +40,9 @@ const ImportRowSchema = z.object({
 
 const ImportFileSchema = z.array(ImportRowSchema);
 
-async function geocodeShanghaiAddress({ address, name, key }) {
+async function geocodeShanghaiAddress({ address, name, district, key }) {
+  const normDistrict = (d) => String(d || "").replace(/(新区|区)$/g, "");
+
   async function attempt(addr) {
     const url = new URL("https://restapi.amap.com/v3/geocode/geo");
     url.searchParams.set("key", key);
@@ -59,20 +61,47 @@ async function geocodeShanghaiAddress({ address, name, key }) {
     if (json.status !== "1") return null;
     const loc = json.geocodes?.[0]?.location;
     if (!loc) return null;
+    const geoDistrict = json.geocodes?.[0]?.district ?? null;
+    const adcode = json.geocodes?.[0]?.adcode ?? null;
     const [lngStr, latStr] = String(loc).split(",");
     const lng = Number(lngStr);
     const lat = Number(latStr);
     if (!Number.isFinite(lng) || !Number.isFinite(lat)) return null;
     if (lng === 0 && lat === 0) return null;
-    return { lng, lat };
+    return { lng, lat, district: geoDistrict, adcode };
   }
 
-  const primary = await attempt(address);
-  if (primary) return primary;
-  const secondary = name ? await attempt(`${address}${name}`) : null;
-  if (secondary) return secondary;
-  const fallback = name ? await attempt(name) : null;
-  return fallback;
+  const candidates = [];
+  const push = (v) => {
+    const s = String(v || "").trim();
+    if (!s) return;
+    if (!candidates.includes(s)) candidates.push(s);
+  };
+
+  push(address);
+
+  const roadMatch = String(address).match(/^(.*?(?:路|街|大道|道|巷))(\d+)弄/);
+  if (roadMatch) {
+    const base = roadMatch[1];
+    const nums = Array.from(String(address).matchAll(/(\d+)弄/g)).map((m) => m[1]);
+    for (const n of nums) {
+      push(`${base}${n}弄`);
+    }
+  }
+
+  if (name) {
+    push(`${address}${name}`);
+    push(name);
+  }
+
+  let firstOk = null;
+  for (const c of candidates) {
+    const r = await attempt(c);
+    if (!r) continue;
+    if (!firstOk) firstOk = r;
+    if (district && normDistrict(r.district) === normDistrict(district)) return r;
+  }
+  return firstOk;
 }
 
 function sleep(ms) {
@@ -112,7 +141,12 @@ async function main() {
     let lat = row.lat ?? null;
 
     if (doGeocode && (lng == null || lat == null)) {
-      const loc = await geocodeShanghaiAddress({ address: row.address, name: row.name, key: geocodeKey });
+      const loc = await geocodeShanghaiAddress({
+        address: row.address,
+        name: row.name,
+        district: row.district,
+        key: geocodeKey
+      });
       if (loc) {
         lng = loc.lng;
         lat = loc.lat;
