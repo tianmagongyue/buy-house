@@ -296,6 +296,9 @@ export function Home() {
                   <div className="mt-1 text-sm text-gray-600">
                     {selected.district} · {selected.address}
                   </div>
+                {selected.developer ? (
+                  <div className="mt-1 text-sm text-gray-600">开发商：{selected.developer}</div>
+                ) : null}
                 </div>
                 <div className="text-sm">
                   <div>限售触发：{formatDate(selected.triggered_at)}</div>
