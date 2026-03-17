@@ -32,29 +32,39 @@ const ImportRowSchema = z.object({
 
 const ImportFileSchema = z.array(ImportRowSchema);
 
-async function geocodeShanghaiAddress({ address, key }) {
-  const url = new URL("https://restapi.amap.com/v3/geocode/geo");
-  url.searchParams.set("key", key);
-  url.searchParams.set("address", address);
-  url.searchParams.set("city", "上海");
-  url.searchParams.set("output", "JSON");
+async function geocodeShanghaiAddress({ address, name, key }) {
+  async function attempt(addr) {
+    const url = new URL("https://restapi.amap.com/v3/geocode/geo");
+    url.searchParams.set("key", key);
+    url.searchParams.set("address", addr);
+    url.searchParams.set("city", "上海");
+    url.searchParams.set("output", "JSON");
 
-  let res;
-  try {
-    res = await fetch(url, { method: "GET" });
-  } catch {
-    return null;
+    let res;
+    try {
+      res = await fetch(url, { method: "GET" });
+    } catch {
+      return null;
+    }
+    if (!res.ok) return null;
+    const json = await res.json();
+    if (json.status !== "1") return null;
+    const loc = json.geocodes?.[0]?.location;
+    if (!loc) return null;
+    const [lngStr, latStr] = String(loc).split(",");
+    const lng = Number(lngStr);
+    const lat = Number(latStr);
+    if (!Number.isFinite(lng) || !Number.isFinite(lat)) return null;
+    if (lng === 0 && lat === 0) return null;
+    return { lng, lat };
   }
-  if (!res.ok) return null;
-  const json = await res.json();
-  if (json.status !== "1") return null;
-  const loc = json.geocodes?.[0]?.location;
-  if (!loc) return null;
-  const [lngStr, latStr] = String(loc).split(",");
-  const lng = Number(lngStr);
-  const lat = Number(latStr);
-  if (!Number.isFinite(lng) || !Number.isFinite(lat)) return null;
-  return { lng, lat };
+
+  const primary = await attempt(address);
+  if (primary) return primary;
+  const secondary = name ? await attempt(`${address}${name}`) : null;
+  if (secondary) return secondary;
+  const fallback = name ? await attempt(name) : null;
+  return fallback;
 }
 
 function sleep(ms) {
@@ -94,7 +104,7 @@ async function main() {
     let lat = row.lat ?? null;
 
     if (doGeocode && (lng == null || lat == null)) {
-      const loc = await geocodeShanghaiAddress({ address: row.address, key: geocodeKey });
+      const loc = await geocodeShanghaiAddress({ address: row.address, name: row.name, key: geocodeKey });
       if (loc) {
         lng = loc.lng;
         lat = loc.lat;

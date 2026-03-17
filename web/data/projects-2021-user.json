@@ -1,8 +1,8 @@
 [
   {
-    "name": "嘉泷汇",
+    "name": "嘉泷汇苑",
     "district": "浦东新区",
-    "address": "浦东新区 嘉泷汇",
+    "address": "上海市浦东新区金业路58弄",
     "triggeredAt": "2021-01",
     "triggeredAtPrecision": "month",
     "sourceTitle": "用户整理-2021触发积分楼盘",
@@ -11,7 +11,7 @@
   {
     "name": "尚海湾豪庭",
     "district": "徐汇区",
-    "address": "徐汇区 尚海湾豪庭",
+    "address": "上海市徐汇区东安路888弄",
     "triggeredAt": "2021-01",
     "triggeredAtPrecision": "month",
     "sourceTitle": "用户整理-2021触发积分楼盘",
@@ -20,7 +20,7 @@
   {
     "name": "星河湾花园三期",
     "district": "闵行区",
-    "address": "闵行区 星河湾花园三期",
+    "address": "上海市闵行区都会路3988弄",
     "triggeredAt": "2021-01",
     "triggeredAtPrecision": "month",
     "sourceTitle": "用户整理-2021触发积分楼盘",
@@ -29,7 +29,7 @@
   {
     "name": "招商悦庭（虹桥公馆二期）",
     "district": "青浦区",
-    "address": "青浦区 招商悦庭（虹桥公馆二期）",
+    "address": "上海市青浦区尚茂路229弄",
     "triggeredAt": "2021-01",
     "triggeredAtPrecision": "month",
     "sourceTitle": "用户整理-2021触发积分楼盘",
@@ -38,7 +38,7 @@
   {
     "name": "泗水和鸣",
     "district": "松江区",
-    "address": "松江区 泗水和鸣",
+    "address": "上海市松江区恒泽路58弄",
     "triggeredAt": "2021-01",
     "triggeredAtPrecision": "month",
     "sourceTitle": "用户整理-2021触发积分楼盘",
@@ -47,7 +47,7 @@
   {
     "name": "金地褐石苑（金地丰盛道）",
     "district": "松江区",
-    "address": "松江区 金地褐石苑（金地丰盛道）",
+    "address": "上海市松江区泗凤公路505弄",
     "triggeredAt": "2021-01",
     "triggeredAtPrecision": "month",
     "sourceTitle": "用户整理-2021触发积分楼盘",
@@ -56,7 +56,7 @@
   {
     "name": "南翔秀海纳名邸（海伦堡）",
     "district": "嘉定区",
-    "address": "嘉定区 南翔秀海纳名邸（海伦堡）",
+    "address": "上海市嘉定区隐园路1999弄",
     "triggeredAt": "2021-01",
     "triggeredAtPrecision": "month",
     "sourceTitle": "用户整理-2021触发积分楼盘",
@@ -64,8 +64,8 @@
   },
   {
     "name": "万达观湖轩",
-    "district": "临港新片区",
-    "address": "临港新片区 万达观湖轩",
+    "district": "浦东新区",
+    "address": "上海市浦东新区临港新片区云皓路518弄",
     "triggeredAt": "2021-01",
     "triggeredAtPrecision": "month",
     "sourceTitle": "用户整理-2021触发积分楼盘",
