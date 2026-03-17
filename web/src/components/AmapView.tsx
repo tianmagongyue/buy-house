@@ -14,6 +14,14 @@ export type MapProject = {
   price_source_title?: string | null;
   price_source_url?: string | null;
   price_updated_at?: string | null;
+  seq?: number | null;
+  developer?: string | null;
+  unit_type?: string | null;
+  unit_count?: number | null;
+  avg_price_cny_per_sqm?: number | null;
+  heat_score?: number | null;
+  heat_label?: string | null;
+  unlock_window?: string | null;
   photo_url: string | null;
   source_title?: string | null;
   source_url?: string | null;

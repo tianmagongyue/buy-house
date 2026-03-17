@@ -24,6 +24,14 @@ const ImportRowSchema = z.object({
   triggeredAtPrecision: z.enum(["day", "month"]).optional(),
   lng: z.number().optional(),
   lat: z.number().optional(),
+  seq: z.number().int().optional(),
+  developer: z.string().min(1).optional(),
+  unitType: z.string().min(1).optional(),
+  unitCount: z.number().int().optional(),
+  avgPriceCnyPerSqm: z.number().int().optional(),
+  heatScore: z.number().optional(),
+  heatLabel: z.string().min(1).optional(),
+  unlockWindow: z.string().min(1).optional(),
   photoUrl: z.string().url().optional(),
   sourceTitle: z.string().optional(),
   sourceUrl: z.string().url().optional(),
@@ -117,15 +125,23 @@ async function main() {
 
     await sql`
       insert into projects
-        (year, name, district, address, lng, lat, triggered_at, triggered_at_precision, photo_url, source_title, source_url, source_published_at, updated_at)
+        (year, name, district, address, lng, lat, triggered_at, triggered_at_precision, seq, developer, unit_type, unit_count, avg_price_cny_per_sqm, heat_score, heat_label, unlock_window, photo_url, source_title, source_url, source_published_at, updated_at)
       values
-        (${year}, ${row.name}, ${row.district}, ${row.address}, ${lng}, ${lat}, ${triggeredAt}, ${precision}, ${row.photoUrl ?? null}, ${row.sourceTitle ?? null}, ${row.sourceUrl ?? null}, ${row.sourcePublishedAt ?? null}, now())
+        (${year}, ${row.name}, ${row.district}, ${row.address}, ${lng}, ${lat}, ${triggeredAt}, ${precision}, ${row.seq ?? null}, ${row.developer ?? null}, ${row.unitType ?? null}, ${row.unitCount ?? null}, ${row.avgPriceCnyPerSqm ?? null}, ${row.heatScore ?? null}, ${row.heatLabel ?? null}, ${row.unlockWindow ?? null}, ${row.photoUrl ?? null}, ${row.sourceTitle ?? null}, ${row.sourceUrl ?? null}, ${row.sourcePublishedAt ?? null}, now())
       on conflict (year, name, address) do update set
         district = excluded.district,
         lng = coalesce(excluded.lng, projects.lng),
         lat = coalesce(excluded.lat, projects.lat),
         triggered_at = excluded.triggered_at,
         triggered_at_precision = excluded.triggered_at_precision,
+        seq = coalesce(excluded.seq, projects.seq),
+        developer = coalesce(excluded.developer, projects.developer),
+        unit_type = coalesce(excluded.unit_type, projects.unit_type),
+        unit_count = coalesce(excluded.unit_count, projects.unit_count),
+        avg_price_cny_per_sqm = coalesce(excluded.avg_price_cny_per_sqm, projects.avg_price_cny_per_sqm),
+        heat_score = coalesce(excluded.heat_score, projects.heat_score),
+        heat_label = coalesce(excluded.heat_label, projects.heat_label),
+        unlock_window = coalesce(excluded.unlock_window, projects.unlock_window),
         photo_url = coalesce(excluded.photo_url, projects.photo_url),
         source_title = coalesce(excluded.source_title, projects.source_title),
         source_url = coalesce(excluded.source_url, projects.source_url),

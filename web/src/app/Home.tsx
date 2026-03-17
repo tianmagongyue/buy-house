@@ -24,6 +24,11 @@ function formatPrice(p: number | null) {
   return `${p.toLocaleString("zh-CN")} 元/㎡`;
 }
 
+function formatAvgPrice(p: number | null | undefined) {
+  if (typeof p !== "number") return "未知";
+  return `${p.toLocaleString("zh-CN")} 元/㎡`;
+}
+
 function formatDate(d: string | null) {
   if (!d) return "未知";
   return d.slice(0, 10);
@@ -284,13 +289,31 @@ export function Home() {
             {selected ? (
               <div className="space-y-3">
                 <div>
-                  <div className="text-lg font-semibold">{selected.name}</div>
+                  <div className="text-lg font-semibold">
+                    {selected.seq ? `${selected.seq}. ` : ""}
+                    {selected.name}
+                  </div>
                   <div className="mt-1 text-sm text-gray-600">
                     {selected.district} · {selected.address}
                   </div>
                 </div>
                 <div className="text-sm">
                   <div>限售触发：{formatDate(selected.triggered_at)}</div>
+                  {selected.unlock_window ? <div>预计解禁：{selected.unlock_window}</div> : null}
+                  {typeof selected.heat_score === "number" || selected.heat_label ? (
+                    <div>
+                      当年积分：
+                      {typeof selected.heat_score === "number" ? `${selected.heat_score}分` : "触发积分"}
+                      {selected.heat_label ? `（${selected.heat_label}）` : ""}
+                    </div>
+                  ) : null}
+                  {selected.unit_type || typeof selected.unit_count === "number" || typeof selected.avg_price_cny_per_sqm === "number" ? (
+                    <div>
+                      户型：{selected.unit_type || "未知"}；套数：
+                      {typeof selected.unit_count === "number" ? selected.unit_count : "未知"}；均价：
+                      {formatAvgPrice(selected.avg_price_cny_per_sqm)}
+                    </div>
+                  ) : null}
                   <div>挂牌价：{formatPrice(selected.price_cny_per_sqm)}</div>
                   {selected.price_updated_at ? (
                     <div>价格更新时间：{formatDate(selected.price_updated_at)}</div>

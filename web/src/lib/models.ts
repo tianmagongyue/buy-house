@@ -13,6 +13,14 @@ export const ProjectRowSchema = z.object({
   lat: z.number().nullable(),
   triggered_at: z.string().nullable(),
   triggered_at_precision: TriggeredAtPrecisionSchema,
+  seq: z.number().int().nullable(),
+  developer: z.string().nullable(),
+  unit_type: z.string().nullable(),
+  unit_count: z.number().int().nullable(),
+  avg_price_cny_per_sqm: z.number().int().nullable(),
+  heat_score: z.number().nullable(),
+  heat_label: z.string().nullable(),
+  unlock_window: z.string().nullable(),
   photo_url: z.string().url().nullable(),
   source_title: z.string().nullable(),
   source_url: z.string().url().nullable(),
@@ -35,4 +43,3 @@ export const ProjectWithPriceSchema = ProjectRowSchema.extend({
   price: ProjectPriceRowSchema.nullable()
 });
 export type ProjectWithPrice = z.infer<typeof ProjectWithPriceSchema>;
-

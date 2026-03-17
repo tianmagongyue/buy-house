@@ -109,6 +109,7 @@ export async function GET(req: Request) {
   const rows = (await sql.query(
     `select
         p.id, p.year, p.name, p.district, p.address, p.lng, p.lat, p.triggered_at, p.triggered_at_precision,
+        p.seq, p.developer, p.unit_type, p.unit_count, p.avg_price_cny_per_sqm, p.heat_score, p.heat_label, p.unlock_window,
         p.photo_url, p.source_title, p.source_url, p.source_published_at, p.created_at, p.updated_at,
         pp.price_cny_per_sqm, pp.price_total_cny, pp.price_source_title, pp.price_source_url, pp.price_updated_at
      from projects p
